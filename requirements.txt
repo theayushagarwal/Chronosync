@@ -1,0 +1,9 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+playwright>=1.44
+httpx>=0.27
+pillow>=10.3
+beautifulsoup4>=4.12
+python-dotenv>=1.0
+pydantic>=2.6
+pytest>=8.0

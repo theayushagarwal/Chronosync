@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Change Detector</title>
+  <style>
+    :root {
+      --bg: #0f1522;
+      --card: #171f31;
+      --ink: #e8ecf5;
+      --muted: #98a3b8;
+      --line: #2a3550;
+      --signal: #6f95f0;
+      --signal-ink: #0f1522;
+      --success: #10b981;
+      --danger: #ef4444;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 320px;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--ink);
+      font: 13px/1.4 var(--sans);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    h1 { font-size: 15px; font-weight: 700; color: var(--signal); }
+    .dash-link {
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+    .dash-link:hover { color: var(--signal); }
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    input, select, textarea {
+      width: 100%;
+      margin-top: 4px;
+      padding: 6px 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--ink);
+      font-size: 12.5px;
+      font-family: inherit;
+    }
+    textarea { font-family: var(--mono); resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid var(--signal);
+      border-color: transparent;
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1px solid var(--signal);
+      background: var(--signal);
+      color: var(--signal-ink);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.9; }
+    button.ghost {
+      background: transparent;
+      color: var(--signal);
+      border-color: var(--line);
+      margin-top: 4px;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 12px;
+    }
+    button.ghost:hover {
+      background: var(--card);
+      border-color: var(--signal);
+    }
+    .msg {
+      margin-top: 10px;
+      font-size: 12px;
+      text-align: center;
+      min-height: 16px;
+      font-weight: 500;
+    }
+    .msg.success { color: var(--success); }
+    .msg.error { color: var(--danger); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Change Detector</h1>
+    <a href="http://localhost:8000" target="_blank" class="dash-link">Dashboard ↗</a>
+  </header>
+
+  <form id="watch-form" autocomplete="off">
+    <label>
+      Page URL
+      <input type="text" id="url" required placeholder="https://..." readonly>
+    </label>
+    <label>
+      Name
+      <input type="text" id="name" required placeholder="Watch name" maxlength="100">
+    </label>
+    <div class="row">
+      <label>
+        Interval
+        <select id="interval">
+          <option value="15">15 min</option>
+          <option value="30">30 min</option>
+          <option value="60" selected>1 hour</option>
+          <option value="360">6 hours</option>
+          <option value="1440">24 hours</option>
+        </select>
+      </label>
+      <label>
+        Sensitivity
+        <select id="sensitivity">
+          <option value="high">High (1 char)</option>
+          <option value="medium" selected>Medium</option>
+          <option value="low">Low (large)</option>
+        </select>
+      </label>
+    </div>
+    <label>
+      Only watch selector (optional)
+      <input type="text" id="selector" placeholder="#price, .article-body">
+    </label>
+    <button type="button" id="pick-btn" class="ghost">🎯 Click element on page</button>
+    <label>
+      Keywords (comma-separated, optional)
+      <input type="text" id="keywords" placeholder="price, discount, stock">
+    </label>
+    <button type="submit" id="submit-btn">Start Watching</button>
+    <div id="status" class="msg"></div>
+  </form>
+
+  <script src="popup.js"></script>
+</body>
+</html>
