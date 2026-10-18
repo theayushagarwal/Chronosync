@@ -6,13 +6,13 @@
    Tokens: Colors, Surfaces, Materials, Timing & Easing
    -------------------------------------------------------------------------- */
 :root, :root[data-theme="dark"] {
-  /* Canvas & Raised Surfaces */
-  --bg-canvas: #0b0e14;
-  --bg-surface: #111622;
-  --bg-surface-elevated: #161c2b;
-  --bg-subtle: #151b28;
-  --bg-hover: #1c2436;
-  --bg-active: #222c42;
+  /* Canvas & Raised Surfaces (Obsidian Linear Palette) */
+  --bg-canvas: #080a0f;
+  --bg-surface: #0e1118;
+  --bg-surface-elevated: #131722;
+  --bg-subtle: #11151f;
+  --bg-hover: #181d2a;
+  --bg-active: #1e2434;
 
   /* Hairline Borders */
   --border: rgba(255, 255, 255, 0.08);
@@ -144,7 +144,19 @@ body {
   line-height: 22px;
   font-weight: 400;
   min-height: 100vh;
+  position: relative;
   transition: background-color var(--dur-normal) var(--ease-standard), color var(--dur-normal) var(--ease-standard);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  z-index: 0;
+  opacity: 0.8;
 }
 
 :root[data-theme="light"] body {
@@ -152,6 +164,16 @@ body {
     radial-gradient(ellipse 900px 500px at 50% -80px, rgba(99, 102, 241, 0.07) 0%, transparent 70%),
     radial-gradient(circle 650px at 90% 18%, rgba(139, 92, 246, 0.04) 0%, transparent 60%),
     radial-gradient(circle 550px at 8% 75%, rgba(16, 185, 129, 0.04) 0%, transparent 55%);
+}
+
+:root[data-theme="light"] body::before {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  opacity: 0.85;
+}
+
+.app-nav, .app-layout, dialog {
+  position: relative;
+  z-index: 1;
 }
 
 /* Typography Scale */
@@ -1154,6 +1176,43 @@ small, .caption {
   box-shadow: var(--shadow-sm);
 }
 
+/* Vim Power-User Navigation Strip */
+.vim-status-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px;
+  background-color: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+
+.vim-key-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.vim-instructions kbd {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 1px 4px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-primary);
+  margin: 0 1px;
+}
+
 .table-scroll {
   overflow-x: auto;
 }
@@ -1210,6 +1269,12 @@ small, .caption {
 
 #watch-table tbody tr.sel {
   background-color: var(--bg-active);
+}
+
+#watch-table tbody tr.vim-focused {
+  border-left: 3px solid var(--accent);
+  background-color: var(--bg-hover) !important;
+  box-shadow: inset 0 0 16px rgba(99, 102, 241, 0.1);
 }
 
 #watch-table tbody tr:focus-visible {

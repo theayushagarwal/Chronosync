@@ -34,7 +34,7 @@
       </div>
       <div class="brand-info">
         <span class="brand-title">Chronosync</span>
-        <span class="brand-badge">Engine v2.0</span>
+        <span class="brand-badge">v2.4 // CHROMIUM 128</span>
       </div>
     </div>
 
@@ -65,6 +65,20 @@
 
     <!-- Nav Utilities -->
     <div class="nav-actions">
+      <!-- Sound Haptics Toggle (M) -->
+      <button id="sound-toggle" class="icon-btn" title="Toggle audio haptics (M)" aria-label="Toggle audio haptics">
+        <svg id="sound-icon-on" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+        <svg id="sound-icon-off" class="hidden" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <line x1="23" y1="9" x2="17" y2="15"/>
+          <line x1="17" y1="9" x2="23" y2="15"/>
+        </svg>
+      </button>
+
       <!-- Theme Switcher -->
       <button id="theme-toggle" class="icon-btn" title="Toggle theme (T)" aria-label="Toggle theme">
         <svg id="theme-icon-dark" class="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -92,10 +106,10 @@
         </svg>
       </button>
 
-      <!-- Engine Status -->
-      <div class="status-indicator-box">
+      <!-- Engine Status & Countdown -->
+      <div class="status-indicator-box" title="Autonomous headless Chromium polling loop">
         <span class="status-dot-calm"></span>
-        <span class="status-label">Engine Active</span>
+        <span class="status-label" id="engine-status-text">CHROMIUM // <span id="countdown-timer">5s</span></span>
       </div>
 
       <!-- Action Button -->
@@ -116,53 +130,53 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-title">Active Monitors</span>
+          <span class="metric-title">TARGETS // ACTIVE</span>
           <div class="metric-icon indigo">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           </div>
         </div>
         <div class="metric-body">
           <span id="kpi-total" class="metric-value">0</span>
-          <span class="metric-sub">Pages continuously polled</span>
+          <span class="metric-sub">Headless poll cadence</span>
         </div>
       </div>
 
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-title">Healthy &amp; OK</span>
+          <span class="metric-title">STATE // HEALTHY</span>
           <div class="metric-icon green">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
         </div>
         <div class="metric-body">
           <span id="kpi-healthy" class="metric-value text-green">0</span>
-          <span class="metric-sub">Passing status checks</span>
+          <span class="metric-sub">HTTP 200 • Baseline OK</span>
         </div>
       </div>
 
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-title">Recorded Versions</span>
+          <span class="metric-title">STORAGE // SNAPSHOTS</span>
           <div class="metric-icon purple">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
           </div>
         </div>
         <div class="metric-body">
           <span id="kpi-versions" class="metric-value">0</span>
-          <span class="metric-sub">Historical snapshots &amp; diffs</span>
+          <span class="metric-sub">Cleaned DOM &amp; PNG diffs</span>
         </div>
       </div>
 
       <div class="metric-card">
         <div class="metric-header">
-          <span class="metric-title">Blocked / Errors</span>
+          <span class="metric-title">ANOMALIES // RETRIES</span>
           <div class="metric-icon amber">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
         </div>
         <div class="metric-body">
           <span id="kpi-issues" class="metric-value">0</span>
-          <span class="metric-sub">Requiring attention or retry</span>
+          <span class="metric-sub">HTTP 4xx/5xx or rate gates</span>
         </div>
       </div>
     </div>
@@ -173,8 +187,8 @@
       <div class="card">
         <div class="card-head">
           <div>
-            <h2 class="card-title">Activity Feed</h2>
-            <p class="card-desc">Confirmed changes and verified alerts across all targets</p>
+            <h2 class="card-title">Mutation Stream</h2>
+            <p class="card-desc">Deduplicated DOM mutations and verified alert events</p>
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
             <div class="alerts-filter-group" role="group" aria-label="Alerts filter">
@@ -192,8 +206,8 @@
       <div class="card">
         <div class="card-head">
           <div>
-            <h2 class="card-title">Monitors Overview</h2>
-            <p class="card-desc">Quick status and latest price / text changes</p>
+            <h2 class="card-title">Telemetry Roster</h2>
+            <p class="card-desc">Target health states, price deltas, and capture timestamps</p>
           </div>
           <button class="btn btn-ghost btn-sm" data-goto="monitors">View Table →</button>
         </div>
@@ -235,8 +249,8 @@
     <div class="card table-card">
       <div class="table-header-bar">
         <div>
-          <h2 class="card-title">Monitored Pages</h2>
-          <p class="card-desc">Autonomous Playwright browser checks with rate limiting and noise suppression</p>
+          <h2 class="card-title">Target Registry</h2>
+          <p class="card-desc">Headless Chromium runtime • Dynamic noise suppression • Sub-pixel pixelmatch diffs</p>
         </div>
         <div class="table-controls">
           <div class="search-wrap">
@@ -257,8 +271,18 @@
             <button class="filter-pill" data-filter="blocked">Blocked</button>
             <button class="filter-pill" data-filter="error">Errors</button>
           </div>
+          <button id="export-json-btn" class="btn btn-secondary btn-sm" title="Export monitor configurations to JSON">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export JSON
+          </button>
           <button class="btn btn-primary btn-sm" data-goto="add">+ Add page</button>
         </div>
+      </div>
+
+      <!-- Vim Power-User Instructions Strip -->
+      <div class="vim-status-strip">
+        <span class="vim-key-badge">VIM NAV</span>
+        <span class="vim-instructions">Navigate <kbd>j</kbd>/<kbd>k</kbd> • Check <kbd>c</kbd> • Inspect <kbd>Enter</kbd> • Delete <kbd>d</kbd> • Mute <kbd>m</kbd> • Search <kbd>/</kbd></span>
       </div>
 
       <div class="table-scroll">
@@ -317,6 +341,9 @@
           </a>
           <button type="button" id="copy-diff-btn" class="btn btn-ghost btn-sm" title="Copy link to this comparison">
             🔗 Copy Link
+          </button>
+          <button type="button" id="copy-curl-btn" class="btn btn-ghost btn-sm" title="Copy cURL terminal command">
+            💻 Copy cURL
           </button>
           <button type="button" id="detail-close" class="btn btn-ghost btn-sm" title="Close detail panel">
             ✕ Close
@@ -567,6 +594,11 @@
       <button type="button" id="shortcuts-close" class="btn btn-ghost btn-sm">Esc</button>
     </div>
     <div class="shortcuts-list">
+      <div class="shortcut-item"><span>Vim Navigate Down / Up</span><kbd class="key-hint">j</kbd> / <kbd class="key-hint">k</kbd></div>
+      <div class="shortcut-item"><span>Check Selected Monitor</span><kbd class="key-hint">c</kbd></div>
+      <div class="shortcut-item"><span>Inspect Selected Monitor</span><kbd class="key-hint">Enter</kbd></div>
+      <div class="shortcut-item"><span>Delete Selected Monitor</span><kbd class="key-hint">d</kbd></div>
+      <div class="shortcut-item"><span>Toggle Audio Haptics</span><kbd class="key-hint">M</kbd></div>
       <div class="shortcut-item"><span>Switch to Overview</span><kbd class="key-hint">1</kbd></div>
       <div class="shortcut-item"><span>Switch to Monitors</span><kbd class="key-hint">2</kbd></div>
       <div class="shortcut-item"><span>Switch to Diff Studio</span><kbd class="key-hint">3</kbd></div>

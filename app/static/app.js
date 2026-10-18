@@ -23,6 +23,92 @@
   var pollInterval = null;
   var pendingDeleteId = null;
 
+  // ==========================================================================
+  // Linear-Style Web Audio Synthesized Haptics
+  // ==========================================================================
+  var audioCtx = null;
+  var soundEnabled = localStorage.getItem('chronosync-sound') !== 'false';
+
+  function getAudioContext() {
+    if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new Ctx();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(function () {});
+    }
+    return audioCtx;
+  }
+
+  function playHaptic(type) {
+    if (!soundEnabled) return;
+    try {
+      var ctx = getAudioContext();
+      if (!ctx) return;
+      var now = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === 'tick') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, now);
+        osc.frequency.exponentialRampToValueAtTime(350, now + 0.015);
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.015);
+        osc.start(now);
+        osc.stop(now + 0.016);
+      } else if (type === 'pop') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.035);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+        osc.start(now);
+        osc.stop(now + 0.036);
+      } else if (type === 'success') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now);
+        osc.frequency.setValueAtTime(880, now + 0.04);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'warn') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.08);
+        gain.gain.setValueAtTime(0.03, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      }
+    } catch (e) {}
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('chronosync-sound', soundEnabled ? 'true' : 'false');
+    updateSoundUI();
+    if (soundEnabled) playHaptic('pop');
+    showToast(soundEnabled ? '🔊 Audio Haptics Enabled' : '🔇 Audio Haptics Muted');
+  }
+
+  function updateSoundUI() {
+    var onIcon = $('#sound-icon-on');
+    var offIcon = $('#sound-icon-off');
+    var btn = $('#sound-toggle');
+    if (onIcon && offIcon) {
+      onIcon.classList.toggle('hidden', !soundEnabled);
+      offIcon.classList.toggle('hidden', soundEnabled);
+    }
+    if (btn) {
+      btn.setAttribute('aria-pressed', soundEnabled ? 'true' : 'false');
+      btn.title = 'Audio Haptics: ' + (soundEnabled ? 'ON (M to mute)' : 'OFF (M to unmute)');
+    }
+  }
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -183,6 +269,7 @@
   // ==========================================================================
   function switchView(viewName) {
     if (state.currentView === viewName) return;
+    playHaptic('tick');
     var apply = function () {
       state.currentView = viewName;
       $$('.view-pane').forEach(function (p) {
@@ -225,7 +312,29 @@
   });
 
   // ==========================================================================
-  // Keyboard Shortcuts (Linear Style)
+  // Vim Table Navigation Helper
+  // ==========================================================================
+  var vimRowIndex = -1;
+
+  function updateVimSelection(newIndex) {
+    var rows = Array.from($$('#watch-table tbody tr'));
+    if (!rows.length) return;
+    if (newIndex < 0) newIndex = 0;
+    if (newIndex >= rows.length) newIndex = rows.length - 1;
+    vimRowIndex = newIndex;
+
+    rows.forEach(function (r, idx) {
+      var isVim = idx === vimRowIndex;
+      r.classList.toggle('vim-focused', isVim);
+      if (isVim) {
+        r.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    });
+    playHaptic('tick');
+  }
+
+  // ==========================================================================
+  // Keyboard Shortcuts (Linear & Vim Engine)
   // ==========================================================================
   document.addEventListener('keydown', function (e) {
     var tag = (e.target.tagName || '').toLowerCase();
@@ -248,11 +357,17 @@
       e.preventDefault();
       var next = state.theme === 'dark' ? 'light' : 'dark';
       setTheme(next);
+      playHaptic('pop');
       showToast('Theme: ' + (next === 'dark' ? 'Dark' : 'Light'));
+    }
+    else if (e.key.toLowerCase() === 'm') {
+      e.preventDefault();
+      toggleSound();
     }
     else if (e.key.toLowerCase() === 'r') {
       e.preventDefault();
       refresh();
+      playHaptic('tick');
       showToast('Refreshing data...');
     }
     else if (e.key === '/') {
@@ -266,7 +381,47 @@
       var sDlg = $('#shortcuts-dialog');
       if (sDlg) {
         if (sDlg.open) sDlg.close();
-        else sDlg.showModal();
+        else { sDlg.showModal(); playHaptic('pop'); }
+      }
+    }
+    else if (e.key.toLowerCase() === 'j') {
+      e.preventDefault();
+      if (state.currentView !== 'monitors') switchView('monitors');
+      updateVimSelection(vimRowIndex + 1);
+    }
+    else if (e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      if (state.currentView !== 'monitors') switchView('monitors');
+      updateVimSelection(vimRowIndex - 1);
+    }
+    else if (e.key.toLowerCase() === 'c' && state.currentView === 'monitors') {
+      var rows = Array.from($$('#watch-table tbody tr'));
+      if (vimRowIndex >= 0 && vimRowIndex < rows.length) {
+        e.preventDefault();
+        var checkBtn = rows[vimRowIndex].querySelector("button[data-act='check']");
+        if (checkBtn) {
+          checkBtn.click();
+          playHaptic('tick');
+        }
+      }
+    }
+    else if (e.key === 'Enter' && state.currentView === 'monitors') {
+      var rows = Array.from($$('#watch-table tbody tr'));
+      if (vimRowIndex >= 0 && vimRowIndex < rows.length) {
+        e.preventDefault();
+        rows[vimRowIndex].click();
+        playHaptic('pop');
+      }
+    }
+    else if (e.key.toLowerCase() === 'd' && state.currentView === 'monitors') {
+      var rows = Array.from($$('#watch-table tbody tr'));
+      if (vimRowIndex >= 0 && vimRowIndex < rows.length) {
+        e.preventDefault();
+        var delBtn = rows[vimRowIndex].querySelector("button[data-act='del']");
+        if (delBtn) {
+          delBtn.click();
+          playHaptic('warn');
+        }
       }
     }
   });
@@ -276,10 +431,44 @@
   var shortcutsBtn = $('#shortcuts-btn');
   var shortcutsClose = $('#shortcuts-close');
   if (shortcutsBtn && shortcutsDlg) {
-    shortcutsBtn.addEventListener('click', function () { shortcutsDlg.showModal(); });
+    shortcutsBtn.addEventListener('click', function () { shortcutsDlg.showModal(); playHaptic('pop'); });
   }
   if (shortcutsClose && shortcutsDlg) {
     shortcutsClose.addEventListener('click', function () { shortcutsDlg.close(); });
+  }
+
+  // ==========================================================================
+  // Developer Utilities: Export JSON & Copy cURL
+  // ==========================================================================
+  var exportJsonBtn = $('#export-json-btn');
+  if (exportJsonBtn) {
+    exportJsonBtn.addEventListener('click', function () {
+      playHaptic('pop');
+      var dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state.watches, null, 2));
+      var downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', 'chronosync-targets-' + new Date().toISOString().slice(0, 10) + '.json');
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast('📥 Exported ' + state.watches.length + ' targets to JSON');
+    });
+  }
+
+  var copyCurlBtn = $('#copy-curl-btn');
+  if (copyCurlBtn) {
+    copyCurlBtn.addEventListener('click', function () {
+      if (!state.selected) return;
+      playHaptic('tick');
+      var curlCmd = 'curl -s -X POST "http://localhost:8000/api/watches/' + state.selected + '/check"';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(curlCmd).then(function () {
+          showToast('💻 Copied cURL command to clipboard');
+        });
+      } else {
+        showToast('cURL: ' + curlCmd);
+      }
+    });
   }
 
   // ==========================================================================
@@ -474,10 +663,12 @@
       });
       f.reset();
       msg.textContent = '';
+      playHaptic('success');
       showToast('✓ Watch added! First check in progress.', '#10b981');
       await refresh();
       switchView('monitors');
     } catch (err) {
+      playHaptic('warn');
       msg.className = 'form-feedback error';
       msg.textContent = err.message;
       if (err.message && err.message.toLowerCase().includes('url')) {
@@ -1064,6 +1255,7 @@
     if (!btn) return;
     var tabName = btn.dataset.tab;
     if (!tabName) return;
+    playHaptic('tick');
 
     $$('.segmented-modes .mode-tab').forEach(function (b) {
       var isTarget = b === btn;
@@ -1122,6 +1314,7 @@
   // ==========================================================================
   async function select(id, a, b) {
     state.selected = id;
+    playHaptic('pop');
 
     // Reuse cached watch list first; fetch only if cache miss
     var w = state.watches.find(function (x) { return x.id === id; });
@@ -1374,6 +1567,13 @@
     wrap.style.width = pct + '%';
     handle.style.left = pct + '%';
     handle.setAttribute('aria-valuenow', Math.round(pct));
+
+    // Subtle tactile notch haptic on scrub
+    var notch = Math.round(pct / 5);
+    if (sliderState.lastNotch !== notch) {
+      sliderState.lastNotch = notch;
+      playHaptic('tick');
+    }
   }
 
   function initSlider() {
@@ -1643,10 +1843,33 @@
   // ==========================================================================
   // Tab Visibility & Polling Lifecycle
   // ==========================================================================
+  var pollSeconds = 5;
+  var countdownInterval = null;
+
+  function resetCountdown() {
+    pollSeconds = 5;
+    var timerEl = $('#countdown-timer');
+    if (timerEl) timerEl.textContent = '5s';
+  }
+
+  function startCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = setInterval(function () {
+      if (document.hidden) return;
+      pollSeconds--;
+      if (pollSeconds < 1) pollSeconds = 5;
+      var timerEl = $('#countdown-timer');
+      if (timerEl) timerEl.textContent = pollSeconds + 's';
+    }, 1000);
+  }
+
   function startPolling() {
     if (pollInterval) clearInterval(pollInterval);
+    resetCountdown();
+    startCountdown();
     pollInterval = setInterval(function () {
       if (!document.hidden) {
+        resetCountdown();
         refresh().catch(function () {});
       }
     }, 5000);
@@ -1656,6 +1879,10 @@
     if (pollInterval) {
       clearInterval(pollInterval);
       pollInterval = null;
+    }
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
     }
   }
 
