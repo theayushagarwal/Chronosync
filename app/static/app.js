@@ -795,10 +795,16 @@
       }
     });
 
-    items.forEach(function (w) {
-      var card = existingCards[w.id];
-      if (card) roster.appendChild(card);
-    });
+    var currentCardIds = Array.prototype.map.call(roster.children, function (c) { return c.dataset && c.dataset.id; });
+    var targetCardIds = items.map(function (w) { return String(w.id); });
+    var cardOrderChanged = currentCardIds.length !== targetCardIds.length ||
+      currentCardIds.some(function (id, idx) { return id !== targetCardIds[idx]; });
+    if (cardOrderChanged) {
+      items.forEach(function (w) {
+        var card = existingCards[w.id];
+        if (card) roster.appendChild(card);
+      });
+    }
   }
 
   // ==========================================================================
@@ -1099,10 +1105,16 @@
       }
     });
 
-    list.forEach(function (w) {
-      var tr = existingRows[w.id];
-      if (tr) tbody.appendChild(tr);
-    });
+    var currentChildIds = Array.prototype.map.call(tbody.children, function (c) { return c.dataset && +c.dataset.id; });
+    var targetIds = list.map(function (w) { return w.id; });
+    var orderChanged = currentChildIds.length !== targetIds.length ||
+      currentChildIds.some(function (id, idx) { return id !== targetIds[idx]; });
+    if (orderChanged) {
+      list.forEach(function (w) {
+        var tr = existingRows[w.id];
+        if (tr) tbody.appendChild(tr);
+      });
+    }
   }
 
   // Summary strip filter chips click delegation
