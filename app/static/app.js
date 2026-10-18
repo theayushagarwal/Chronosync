@@ -1547,7 +1547,11 @@
   function resetPicker() {
     clearTimeout(pickerLoadTimer);
     frame.src = 'about:blank';
-    if (pickerLoader) pickerLoader.classList.remove('hidden');
+    if (pickerLoader) {
+      pickerLoader.classList.remove('hidden');
+      pickerLoader.hidden = false;
+      pickerLoader.style.display = 'flex';
+    }
     $('#picker-note').textContent = 'Loading rendered DOM...';
   }
 
@@ -1565,6 +1569,8 @@
     }
     if (pickerLoader) {
       pickerLoader.classList.remove('hidden');
+      pickerLoader.hidden = false;
+      pickerLoader.style.display = 'flex';
       if (pickerLoaderText) pickerLoaderText.textContent = 'Rendering sandboxed snapshot...';
     }
     $('#picker-note').textContent = 'Loading rendered DOM...';
@@ -1580,8 +1586,13 @@
   });
 
   frame.addEventListener('load', function () {
+    if (!frame.src || frame.src === 'about:blank') return;
     clearTimeout(pickerLoadTimer);
-    if (pickerLoader) pickerLoader.classList.add('hidden');
+    if (pickerLoader) {
+      pickerLoader.classList.add('hidden');
+      pickerLoader.hidden = true;
+      pickerLoader.style.display = 'none';
+    }
     $('#picker-note').textContent = 'Hover and click any element to grab its selector.';
     try {
       frame.contentWindow.postMessage({ type: 'mode', mode: pickMode }, '*');
