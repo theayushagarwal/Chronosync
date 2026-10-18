@@ -1668,8 +1668,55 @@
     }
   });
 
+  // ==========================================================================
+  // 3D Spatial Tilt & Specular Physics Engine (GPU-Accelerated)
+  // ==========================================================================
+  function init3DTilt() {
+    var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    function handleMove(e) {
+      var card = e.currentTarget;
+      var rect = card.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var centerX = rect.width / 2;
+      var centerY = rect.height / 2;
+
+      // Subtle, refined 3D tilt angles (-5deg to +5deg)
+      var rotateX = ((centerY - y) / centerY) * 5;
+      var rotateY = ((x - centerX) / centerX) * 5;
+
+      card.style.setProperty('--mouse-x', ((x / rect.width) * 100).toFixed(1) + '%');
+      card.style.setProperty('--mouse-y', ((y / rect.height) * 100).toFixed(1) + '%');
+      card.style.transform = 'perspective(1000px) rotateX(' + rotateX.toFixed(2) + 'deg) rotateY(' + rotateY.toFixed(2) + 'deg) translateZ(4px) scale3d(1.015, 1.015, 1.015)';
+    }
+
+    function handleLeave(e) {
+      var card = e.currentTarget;
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0) scale3d(1, 1, 1)';
+    }
+
+    function bindTilt() {
+      var targets = document.querySelectorAll('.metric-card, .card-3d, .card.table-card, .card.form-card');
+      targets.forEach(function (el) {
+        if (el._tiltBound) return;
+        el._tiltBound = true;
+        el.addEventListener('pointermove', handleMove, { passive: true });
+        el.addEventListener('pointerleave', handleLeave, { passive: true });
+      });
+    }
+
+    bindTilt();
+    if (window.MutationObserver) {
+      var observer = new MutationObserver(bindTilt);
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
   // Initialize
   initTheme();
+  init3DTilt();
   refresh().then(route);
   startPolling();
 })();
