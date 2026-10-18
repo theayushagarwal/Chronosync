@@ -453,7 +453,6 @@ small, .caption {
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transform-style: preserve-3d;
   transition: transform var(--dur-fast) var(--ease-spring),
               background-color var(--dur-fast) var(--ease-standard),
               border-color var(--dur-fast) var(--ease-standard),
@@ -596,17 +595,17 @@ small, .caption {
 
 .view-pane.active {
   display: block;
-  animation: paneEnter3D 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: paneEnter var(--dur-normal) var(--ease-out) forwards;
 }
 
-@keyframes paneEnter3D {
-  0% {
+@keyframes paneEnter {
+  from {
     opacity: 0;
-    transform: perspective(1000px) translateY(14px) scale(0.985) rotateX(1.8deg);
+    transform: translateY(4px);
   }
-  100% {
+  to {
     opacity: 1;
-    transform: perspective(1000px) translateY(0) scale(1) rotateX(0deg);
+    transform: translateY(0);
   }
 }
 
@@ -617,10 +616,8 @@ small, .caption {
   padding: 20px;
   box-shadow: var(--inner-highlight), var(--shadow-sm);
   position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.3s ease;
+  transition: border-color var(--dur-normal) var(--ease-standard),
+              background-color var(--dur-normal) var(--ease-standard);
 }
 
 .card-head {
@@ -647,7 +644,7 @@ small, .caption {
 }
 
 /* --------------------------------------------------------------------------
-   KPI Metrics Grid (3D Spatial Tilt & Dynamic Specular Sheen)
+   KPI Metrics Grid
    -------------------------------------------------------------------------- */
 .metrics-grid {
   display: grid;
@@ -667,56 +664,12 @@ small, .caption {
   justify-content: space-between;
   gap: 12px;
   position: relative;
-  transform-style: preserve-3d;
-  will-change: transform;
-  overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.3s ease;
-}
-
-/* Dynamic Specular Sheen Layer */
-.metric-card::before,
-.card-3d::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(
-    circle 260px at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.08),
-    transparent 80%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  border-radius: inherit;
-  z-index: 1;
-}
-
-:root[data-theme="light"] .metric-card::before,
-:root[data-theme="light"] .card-3d::before {
-  background: radial-gradient(
-    circle 260px at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(99, 102, 241, 0.08),
-    transparent 80%
-  );
-}
-
-.metric-card:hover::before,
-.card-3d:hover::before {
-  opacity: 1;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .metric-card:hover {
-  transform: translateY(-3px) scale(1.015);
-  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.45),
-              0 0 24px -4px var(--accent-glow),
-              var(--inner-highlight);
   border-color: rgba(99, 102, 241, 0.35);
-}
-
-.metric-card > * {
-  transform: translateZ(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), var(--inner-highlight);
 }
 
 .metric-header {
@@ -1539,7 +1492,7 @@ time {
   animation: paneEnter var(--dur-normal) var(--ease-out) forwards;
 }
 
-/* Slider View (3D Floating Stage & Tactile Control) */
+/* Slider View (Tactile Control) */
 .slider-stage {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1548,7 +1501,6 @@ time {
   box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7),
               0 0 0 1px var(--border),
               0 0 40px -10px var(--accent-subtle);
-  transform-style: preserve-3d;
   transition: box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
@@ -1986,8 +1938,7 @@ dialog {
   box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.65), 0 0 0 1px var(--border), 0 0 40px -10px var(--accent-subtle);
   padding: 0;
   margin: auto;
-  transform-style: preserve-3d;
-  animation: modalEnter3D 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: modalEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 dialog::backdrop {
@@ -1997,14 +1948,14 @@ dialog::backdrop {
   animation: backdropEnter 0.25s var(--ease-standard);
 }
 
-@keyframes modalEnter3D {
+@keyframes modalEnter {
   0% {
     opacity: 0;
-    transform: perspective(900px) translateY(24px) scale(0.93) rotateX(4deg);
+    transform: translateY(12px) scale(0.96);
   }
   100% {
     opacity: 1;
-    transform: perspective(900px) translateY(0) scale(1) rotateX(0deg);
+    transform: translateY(0) scale(1);
   }
 }
 
